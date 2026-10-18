@@ -4,6 +4,8 @@ import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import { PrismaModule } from '../prisma/prisma.module.js';
 import { OrdersModule } from '../orders/orders.module.js';
+import { ClientsModule } from '../clients/clients.module.js';
+import { ProductsModule } from '../products/products.module.js';
 
 export const { ObserveModule, ObserveInstrument } = createObserveModule();
 
@@ -14,7 +16,7 @@ export const { ObserveModule, ObserveInstrument } = createObserveModule();
       appSecret: 'YOUR_APP_SECRET',
       serviceId: 'coffee-w',
     }),
-    PrismaModule, OrdersModule,
+    PrismaModule, OrdersModule, ClientsModule, ProductsModule
   ],
   controllers: [AppController],
   providers: [AppService],
