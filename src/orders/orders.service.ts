@@ -1,10 +1,17 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service.js';
 import { CreateOrderDto } from './dto/create-order.dto.js';
+import { ClientKafka } from '@nestjs/microservices';
 
 @Injectable()
-export class OrdersService {
-  constructor(private prisma: PrismaService) {}
+export class OrdersService implements OnModuleInit {
+  constructor(private prisma: PrismaService, 
+  @Inject('KAFKA_SERVICE') private readonly kafkaClient: ClientKafka,
+  ) {}
+
+  async onModuleInit() {
+    await this.kafkaClient.connect();
+  }
 
   async create(createOrderDto: CreateOrderDto) {
     const { clientId, items } = createOrderDto;
@@ -27,6 +34,14 @@ export class OrdersService {
         orderItems: true, 
       },
     });
+
+    this.kafkaClient.emit('order.created',{
+      orderId: order.id,
+      clientId: order.clientId,
+      total: order.total,
+      items: order.orderItems,
+      createdAt: order.createdAt,
+    })
 
     return {
       message: 'Pedido criado com sucesso!',
